@@ -88,3 +88,65 @@ legend("bottomright", legend = labels, col = c("red", "black"), lty = c(1, 1), c
 ![RMSD 11](RStudio_images/RMSD%2011.png)
 
 ---
+
+For RMSF analysis, we will use *ggplot2* package to graph the movement of the amino acids. If not already installed, install *ggplot2* and run the package. 
+```{r}
+install.packages("ggplot2")
+library(ggplot2)
+```
+
+Import your wild-type and variant "analysisres.tab" files as a table
+```{r}
+RMSF_WT <- fread("~/Desktop/TP53_analysisres.tab", header = FALSE)
+RMSF_Variant <- fread("~/Desktop/TP53_R158Q_em_analysisres.tab", header = FALSE)
+```
+
+![RMSF 2](RStudio_images/RMSF%202.png)
+
+---
+
+Assign column names to each column
+```{r}
+colnames(RMSF_WT) <- c("Residue", "Position no", "Letter", "RMSDs", "Backbone", "HeavyAtoms", "RMSF")
+colnames(RMSF_Variant) <- c("Residue", "Position no", "Letter", "RMSDs", "Backbone", "HeavyAtoms", "RMSF")
+```
+
+![RMSF 3](RStudio_images/RMSF%203.png)
+
+---
+
+Since we are plotting RMSF's for each amino acid, let's isolate the amino acid position and RMSF columns. 
+
+[!NOTE]  
+Amino acids in the wild-type dataset starts on row 43
+
+```{r}
+RMSF_TP53 <- RMSF_WT[c(43:236),c("Position no","RMSF")]
+RMSF_TP53_R158Q <- RMSF_Variant[c(1:194),c("Position no","RMSF")]
+```
+
+![RMSF 5](RStudio_images/RMSF%205.png)
+
+---
+
+Combine both subsets into one table. Add a new column called *dataset* in which all wild-type values are assigned "RMSF_TP53" and all variant values are assigned "RMSF_TP53_R158Q"
+```{r}
+combined_data <- rbind(RMSF_TP53, RMSF_TP53_R158Q)
+combined_data$dataset <- rep(c("RMSF_TP53", "RMSF_TP53_R158Q"), each = nrow(RMSF_TP53))
+```
+
+![RMSF 6](RStudio_images/RMSF%206.png)
+
+---
+
+Plot a line graph of the combined data titled "RMSF" with *position no* in the x-axis, *RMSF* values in the y-axis, and the color of the lines differentiated based on the grouping in the *dataset* column
+```{r}
+ggplot(combined_data, aes(x = `Position no`, y = RMSF, color = dataset, group = dataset)) +
+  geom_line() +
+  labs(x = "Residue", y = "RMSF", title = "RMSF") +
+  theme_minimal()
+  ```
+  
+  ![RMSF 7](RStudio_images/RMSF%207.png)
+  
+  ---
